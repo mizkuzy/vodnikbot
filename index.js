@@ -1,8 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import TelegramApi from 'node-telegram-bot-api'
 import {againOptions, gameOptions} from './options.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import sequelize from './db.js';
+import {User} from './models.js';
 
 const token = process.env.TELEGRAM_API_TOKEN;
 const bot = new TelegramApi(token, {polling: true})
@@ -17,7 +19,13 @@ const startGame = async (chatId) => {
   console.error(`GUESSED NUMBER: ${chats[chatId]}`)
 }
 
-const start = () => {
+const start = async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync();
+  } catch (e) {
+    console.log('Подключение к БД сломалось');
+  }
   bot.setMyCommands([
     {command: '/start', description: 'Начальное приветствие и стикер в подарок'},
     {command: '/info', description: 'Информация о пользователе'},
