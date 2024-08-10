@@ -36,24 +36,29 @@ const start = async () => {
     const text = msg.text
     const chatId = msg.chat.id
 
-    console.log(text)
-    console.log(chatId)
+    try {
+      switch (text) {
+        case '/start': {
+          await User.create({chatId})
 
-    switch (text) {
-      case '/start': {
-        await bot.sendMessage(chatId, 'Привет, я бот. Погнали')
-        // get sticker from https://tlgrm.ru/stickers
-        await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/e65/38d/e6538d88-ed55-39d9-a67f-ad97feea9c01/1.webp')
-        break
+          await bot.sendMessage(chatId, 'Привет, я бот. Погнали')
+          // get sticker from https://tlgrm.ru/stickers
+          await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/e65/38d/e6538d88-ed55-39d9-a67f-ad97feea9c01/1.webp')
+          break
+        }
+        case '/info':
+          const user = await User.findOne({where: {chatId}})
+          if (!user) {
+            return bot.sendMessage(chatId, `User data is not found. Please click start`)
+          }
+          return bot.sendMessage(chatId, `Right answer: ${user.rightAnswers}, wrong answers: ${user.wrongAnswers}`)
+        case '/game':
+          return startGame(chatId)
+        default:
+          return bot.sendMessage(chatId, `Ты: ${text}`)
       }
-      case '/help':
-        return bot.sendMessage(chatId, 'Помоги себе сам')
-      case '/info':
-        return bot.sendMessage(chatId, `Your name is ${msg.from.first_name} ${msg.from.last_name}`)
-      case '/game':
-        return startGame(chatId)
-      default:
-        return bot.sendMessage(chatId, `Ты: ${text}`)
+    } catch (e) {
+      return bot.sendMessage(chatId, `Some Error, ${e}`)
     }
   })
   // why 'callback_query
@@ -67,11 +72,18 @@ const start = async () => {
 
     const gameAnswer = chats[chatId];
 
+    const user = await User.findOne({where: {chatId}})
+    if (!user) {
+      return bot.sendMessage(chatId, `User data is not found. Please click start`)
+    }
     if (Number(userAnswer) === Number(gameAnswer)) {
+      user.rightAnswers += 1
       await bot.sendMessage(chatId, `You've guessed!`, againOptions)
     } else {
+      user.wrongAnswers += 1
       await bot.sendMessage(chatId, `You've not guessed! The number was ${gameAnswer}`, againOptions)
     }
+    user.save()
   })
 }
 
