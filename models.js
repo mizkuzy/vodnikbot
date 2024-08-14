@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import {DataTypes} from 'sequelize'
 import sequelize from './db.js';
 
 const User = sequelize.define(
-  'user',
+  'users',
   {
     id: {
       type: DataTypes.UUID,
@@ -14,11 +14,12 @@ const User = sequelize.define(
       allowNull: false,
       unique: true
     },
-    rightAnswers: {type: DataTypes.INTEGER, defaultValue: 0},
-    wrongAnswers: {type: DataTypes.INTEGER, defaultValue: 0},
+    dailyGoal: {type: DataTypes.INTEGER, defaultValue: 2000},
+    todayConsumption: {type: DataTypes.INTEGER, defaultValue: 0},
   },
   {
-    // Other model options go here
+    tableName: 'users',
+    timestamps: true,
   },
 );
 
