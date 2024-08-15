@@ -1,16 +1,25 @@
-import AWS from 'aws-sdk'
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import dotenv from 'dotenv';
+dotenv.config();
 
-AWS.config.update({
-  region: "us-east-1",
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-})
+console.log('init db');
 
-const db = new AWS.DynamoDB.DocumentClient()
+const dbClient = new DynamoDB({
+  region: 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
+});
 
-const Table = 'users'
+const docClient = DynamoDBDocument.from(dbClient);
+
+const USERS_TABLE = 'users';
+const USERS_TABLE_INDEX_CHAT_ID = 'chatId-gsi';
 
 export {
-  db,
-  Table
+  docClient,
+  USERS_TABLE,
+  USERS_TABLE_INDEX_CHAT_ID
 }

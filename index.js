@@ -1,19 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import sequelize from './db.js';
 import {initBot} from './bot.js';
 
 const start = async () => {
   console.log('start');
   try {
-    await sequelize.authenticate();
-    console.log('Connection to db has been established successfully');
-    await sequelize.sync();
-
     await initBot();
   } catch (e) {
-    console.log('Connection to db error', e);
+    console.log('Something went wrong', e);
   }
 
 

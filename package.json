@@ -13,12 +13,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1675.0",
+    "@aws-sdk/client-dynamodb": "^3.631.0",
+    "@aws-sdk/lib-dynamodb": "^3.631.0",
     "dotenv": "^16.4.5",
     "node-telegram-bot-api": "^0.66.0",
-    "nodemon": "^3.1.4",
-    "pg": "^8.12.0",
-    "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.3"
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }

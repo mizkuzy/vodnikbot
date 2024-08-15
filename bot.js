@@ -1,34 +1,25 @@
 import TelegramApi from 'node-telegram-bot-api';
-import {User} from './models.js';
+import {createUser, getUser, testFn, updateUser} from './db.js';
+import {checkIfNumber} from './utils.js';
 
-const addLiquid = async (bot, chatId, amount, user) => {
-  user.todayConsumption += amount
-  await user.save()
+const addLiquid = async (bot, chatId, amount) => {
+  try {
+    const {id, todayConsumption = 0} = await getUser(chatId)
+    const newTodayConsumption = todayConsumption + amount;
 
-  return bot.sendMessage(chatId, `You've added ${amount} ml of liquid. Total: ${user.todayConsumption} ml. You have ${2000 - user.todayConsumption} ml left to reach your daily goal`)
-}
+    const updatedUser = await updateUser(id, chatId, {todayConsumption: newTodayConsumption})
 
-const getUser = async (chatId, createNew) => {
-  const user = await User.findOne({where: {chatId}})
-
-  if (!user && createNew) {
-    return await User.create({
-      chatId,
-    })
+    return bot.sendMessage(chatId, `You've added ${amount} ml of liquid. Total: ${updatedUser.todayConsumption} ml. You have ${2000 - updatedUser.todayConsumption} ml left to reach your daily goal`)
+  } catch (e) {
+    return  bot.sendMessage(chatId, `Unfortunately I can not add liquid for you. Please try again later`)
   }
-
-  if (!user) {
-    throw new Error('User data is not found. Please click /start')
-  }
-
-  return user
 }
 
 const initBot = async () => {
   const token = process.env.TELEGRAM_API_TOKEN;
   const bot = new TelegramApi(token, {polling: true})
 
-  bot.setMyCommands([
+  await bot.setMyCommands([
     {command: '/start', description: 'Start to log your liquid consumption'},
     {command: '/info', description: 'Today liquid consumption'},
   ])
@@ -37,26 +28,39 @@ const initBot = async () => {
     const msgText = msg.text
     const chatId = msg.chat.id
 
-    console.log('msgText', msgText);
+    console.log('raw msgText', msgText);
+
     try {
       switch (msgText) {
         case '/start': {
-          await getUser(chatId, true)
+          try {
+            await createUser({chatId})
+          } catch (e) {
+            await bot.sendMessage(chatId, 'Unfortunately I can not create a user for you or it is already created. Please try again later')
+          }
 
           await bot.sendMessage(chatId, 'Hello! I am your liquid consumption bot. I will help you to log your liquid consumption. Every time you drink some liquid, just write me the amount of liquid you drank. I will log it for you. Default daily goal is 2000 ml. You can also ask me for today liquid consumption by typing /info')
           break
         }
         case '/info':
-          const user = await getUser(chatId, true)
+          const user = await getUser(chatId)
 
-          return bot.sendMessage(chatId, `Today you've drunk ${user.todayConsumption ?? 0} ml of liquid. You have ${2000 - user.todayConsumption} ml left to reach your daily goal`)
+          const todayConsumption = user.todayConsumption ?? 0
+
+          return bot.sendMessage(chatId, `Today you've drunk ${todayConsumption} ml of liquid. You have ${2000 - todayConsumption} ml left to reach your daily goal`)
         default: {
-          // todo validate amount
-          const user = await getUser(chatId, true)
+          const isInputNumber = checkIfNumber(msgText?.trim())
 
-          const ko = Number(msgText)
-          console.log('Number(msgText)', ko, typeof ko);
-          await addLiquid(bot, chatId, Number(msgText), user)
+          if (!isInputNumber) {
+            return bot.sendMessage(chatId, 'Please enter a positive integer number')
+          }
+
+          try {
+            const liquidAmount = Number(msgText)
+            await addLiquid(bot, chatId, liquidAmount)
+          } catch (e) {
+            await bot.sendMessage(chatId, `There is an error. Please try again later, error: ${e}`)
+          }
         }
       }
     } catch (e) {
