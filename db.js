@@ -1,4 +1,4 @@
-import {docClient, USERS_TABLE, USERS_TABLE_INDEX_CHAT_ID} from './db.config.js'
+import {docClient, USERS_TABLE} from './db.config.js'
 import {v4 as uuid} from 'uuid';
 import {ScanCommand, UpdateCommand} from '@aws-sdk/lib-dynamodb';
 import {DescribeTableCommand} from '@aws-sdk/client-dynamodb';
@@ -16,12 +16,12 @@ export const testFn = async () => {
 }
 
 const createUser = async (data = {}) => {
-  console.log(`try to create user by chatId ${chatId}`);
+  console.log(`try to create user with data ${JSON.stringify(data, null, 2)}`);
   try {
     const user = await getUser(data.chatId)
 
-    console.log('user', user);
     if (user) {
+      // todo suggest to reset user data
       throw new Error('User is already exists')
     }
 
@@ -65,7 +65,7 @@ const updateUser = async (id, chatId, updateFields) => {
     };
 
     const response = await docClient.send(new UpdateCommand(params));
-    console.log('updateUser.response', response);
+    console.log('updateUser.response', response.Attributes);
 
     const {Attributes: updatedUser}= response;
     return updatedUser;
@@ -75,19 +75,21 @@ const updateUser = async (id, chatId, updateFields) => {
   }
 };
 
-const getUsers = async () => {
+const getUsers = async (projectionParams) => {
+  console.log('try to get all users, projectionParams', projectionParams);
+
   const command = new ScanCommand({
     TableName: USERS_TABLE,
+    ProjectionExpression: projectionParams ? projectionParams.join(', ') : undefined,
   });
 
   try {
-    const {Items = []} = await docClient.send(command)
-    return {success: true, data: Items}
+    const {Items: data = []} = await docClient.send(command)
+    return data
 
-  } catch (error) {
-    return {success: false, data: null}
+  } catch (e) {
+    throw new Error(e.message)
   }
-
 }
 
 const getUser = async (chatId) => {
@@ -101,7 +103,7 @@ const getUser = async (chatId) => {
       },
     });
     const {Items = []} = response;
-    console.log('getUser.response', response);
+    console.log('getUser.response', response.Items);
 
     return Items[0];
   } catch (e) {

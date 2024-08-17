@@ -1,6 +1,9 @@
 import TelegramApi from 'node-telegram-bot-api';
 import {createUser, getUser, testFn, updateUser} from './db.js';
 import {checkIfNumber} from './utils.js';
+import {COLUMNS, USERS_TABLE} from './db.config.js';
+
+const DEFAULT_TIMEZONE = "Europe/Moscow"
 
 const addLiquid = async (bot, chatId, amount) => {
   try {
@@ -34,7 +37,7 @@ const initBot = async () => {
       switch (msgText) {
         case '/start': {
           try {
-            await createUser({chatId})
+            await createUser({chatId, [COLUMNS[USERS_TABLE].TIME_ZONE]: DEFAULT_TIMEZONE})
           } catch (e) {
             await bot.sendMessage(chatId, 'Unfortunately I can not create a user for you or it is already created. Please try again later')
           }

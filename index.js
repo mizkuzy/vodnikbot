@@ -2,11 +2,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import {initBot} from './bot.js';
+import {resetTodayConsumption} from './resetTodayConsumption.js';
+import cron from 'node-cron';
 
 const start = async () => {
   console.log('start');
   try {
     await initBot();
+    await runCron();
   } catch (e) {
     console.log('Something went wrong', e);
   }
@@ -34,4 +37,12 @@ const start = async () => {
   // })
 }
 
+const runCron = async () => {
+  // Schedule the reset function to run every hour
+  cron.schedule('*/30 * * * * *', async () => {
+    console.log('Checking if reset is needed...');
+    await resetTodayConsumption();
+  });
+
+}
 await start()

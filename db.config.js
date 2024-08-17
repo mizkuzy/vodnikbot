@@ -18,8 +18,18 @@ const docClient = DynamoDBDocument.from(dbClient);
 const USERS_TABLE = 'users';
 const USERS_TABLE_INDEX_CHAT_ID = 'chatId-gsi';
 
+const COLUMNS = {
+  [USERS_TABLE]: {
+    ID: 'id',
+    CHAT_ID: 'chatId',
+    TIME_ZONE: 'userTZ',
+    TODAY_CONSUMPTION: 'todayConsumption', // todo rename to dailyConsumption
+  }
+}
+
 export {
   docClient,
   USERS_TABLE,
-  USERS_TABLE_INDEX_CHAT_ID
+  USERS_TABLE_INDEX_CHAT_ID,
+  COLUMNS
 }
