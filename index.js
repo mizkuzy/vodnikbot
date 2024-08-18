@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import './setup.js';
 
 import {initBot} from './bot.js';
 import {resetTodayConsumption} from './resetTodayConsumption.js';

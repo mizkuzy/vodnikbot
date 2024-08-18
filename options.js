@@ -1,3 +1,4 @@
+//todo remove
 export const gameOptions = {
   reply_markup: JSON.stringify({
     inline_keyboard: [

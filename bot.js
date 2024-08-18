@@ -1,9 +1,7 @@
 import TelegramApi from 'node-telegram-bot-api';
-import {createUser, getUser, testFn, updateUser} from './db.js';
+import {createUser, getUser, updateUser} from './db.js';
 import {checkIfNumber} from './utils.js';
-import {COLUMNS, USERS_TABLE} from './db.config.js';
-
-const DEFAULT_TIMEZONE = "Europe/Moscow"
+import {COLUMNS, DEFAULT_TIMEZONE, USERS_TABLE} from './db.config.js';
 
 const addLiquid = async (bot, chatId, amount) => {
   try {
@@ -31,7 +29,7 @@ const initBot = async () => {
     const msgText = msg.text
     const chatId = msg.chat.id
 
-    console.log('raw msgText', msgText);
+    console.log('msgText', msgText);
 
     try {
       switch (msgText) {
@@ -42,7 +40,7 @@ const initBot = async () => {
             await bot.sendMessage(chatId, 'Unfortunately I can not create a user for you or it is already created. Please try again later')
           }
 
-          await bot.sendMessage(chatId, 'Hello! I am your liquid consumption bot. I will help you to log your liquid consumption. Every time you drink some liquid, just write me the amount of liquid you drank. I will log it for you. Default daily goal is 2000 ml. You can also ask me for today liquid consumption by typing /info')
+          await bot.sendMessage(chatId, `Hello! I am your liquid consumption bot. I will help you to log your liquid consumption. Every time you drink some liquid, just write me the amount of liquid you drank. I will log it for you. Default daily goal is 2000 ml. Every day at midnight ${DEFAULT_TIMEZONE} your daily consumption will be reset. You can also ask me for today liquid consumption by typing /info`)
           break
         }
         case '/info':

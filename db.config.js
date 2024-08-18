@@ -1,9 +1,8 @@
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log('init db');
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 
 const dbClient = new DynamoDB({
   region: 'us-east-1',
@@ -18,6 +17,8 @@ const docClient = DynamoDBDocument.from(dbClient);
 const USERS_TABLE = 'users';
 const USERS_TABLE_INDEX_CHAT_ID = 'chatId-gsi';
 
+const DEFAULT_TIMEZONE = "Europe/Moscow"
+
 const COLUMNS = {
   [USERS_TABLE]: {
     ID: 'id',
@@ -29,6 +30,7 @@ const COLUMNS = {
 
 export {
   docClient,
+  DEFAULT_TIMEZONE,
   USERS_TABLE,
   USERS_TABLE_INDEX_CHAT_ID,
   COLUMNS
