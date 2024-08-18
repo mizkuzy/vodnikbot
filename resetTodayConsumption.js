@@ -10,7 +10,7 @@ export async function resetTodayConsumption() {
       const userLocalTime = moment().tz(userTZ);
 
       if (userLocalTime.hour() === 0) {
-        console.log('resetting todayConsumption for user', chatId);
+        console.log('Reset todayConsumption for user', chatId);
         return updateUser(id, chatId, {todayConsumption: 0})
       }
     });

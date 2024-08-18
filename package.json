@@ -16,6 +16,7 @@
     "@aws-sdk/client-dynamodb": "^3.631.0",
     "@aws-sdk/lib-dynamodb": "^3.631.0",
     "dotenv": "^16.4.5",
+    "log-timestamp": "^0.3.0",
     "moment-timezone": "^0.5.45",
     "node-cron": "^3.0.3",
     "node-telegram-bot-api": "^0.66.0",

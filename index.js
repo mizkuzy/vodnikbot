@@ -39,10 +39,10 @@ const start = async () => {
 
 const runCron = async () => {
   // Schedule the reset function to run every hour
-  cron.schedule('*/30 * * * * *', async () => {
-    console.log('Checking if reset is needed...');
+  cron.schedule('0 * * * *', async () => {
+    console.log('Cron job. Checking if reset is needed...');
     await resetTodayConsumption();
   });
-
 }
+
 await start()
