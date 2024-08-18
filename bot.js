@@ -26,10 +26,10 @@ const initBot = async () => {
   ])
 
   bot.on('message', async (msg) => {
+    console.log('raw message', msg);
+
     const msgText = msg.text
     const chatId = msg.chat.id
-
-    console.log('msgText', msgText);
 
     try {
       switch (msgText) {

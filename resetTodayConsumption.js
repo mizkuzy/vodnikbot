@@ -5,12 +5,15 @@ import {getUsers, updateUser} from './db.js';
 export async function resetTodayConsumption() {
   try {
     const users = await getUsers([COLUMNS[USERS_TABLE].ID, COLUMNS[USERS_TABLE].CHAT_ID, COLUMNS[USERS_TABLE].TIME_ZONE]);
+
+    const chatIdsUpdate = [];
+
     const updatePromises = users.map(item => {
       const {id, chatId, userTZ} = item;
       const userLocalTime = moment().tz(userTZ);
 
       if (userLocalTime.hour() === 0) {
-        console.log('Reset todayConsumption for user', chatId);
+        chatIdsUpdate.push(chatId);
         return updateUser(id, chatId, {todayConsumption: 0})
       }
     });
@@ -18,7 +21,11 @@ export async function resetTodayConsumption() {
     const usersUpdate = updatePromises.filter(Boolean);
 
     await Promise.all(usersUpdate);
-    console.log('Successfully reset todayConsumption for eligible users');
+    console.log(
+      usersUpdate.length > 0
+        ?`Successfully reset todayConsumption for ${chatIdsUpdate.join(', ')} users`
+        :'No users to reset todayConsumption'
+    );
   } catch (error) {
     console.error('Error resetting todayConsumption:', error);
   }
